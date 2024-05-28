@@ -51,7 +51,7 @@ void io::copyFile(FS_Archive srcArch, FS_Archive dstArch, const std::u16string& 
     }
     else {
         Logger::getInstance().log(Logger::ERROR,
-            "Failed to open source file " + StringUtils::UTF16toUTF8(srcPath) + " during copy with result 0x%08lX. Skipping...", input.result());
+            "Échec d'ouverture du fichier source " + StringUtils::UTF16toUTF8(srcPath) + " lors de la copie avec résultat 0x%08lX. Annulation...", input.result());
         return;
     }
 
@@ -78,7 +78,7 @@ void io::copyFile(FS_Archive srcArch, FS_Archive dstArch, const std::u16string& 
     }
     else {
         Logger::getInstance().log(Logger::ERROR,
-            "Failed to open destination file " + StringUtils::UTF16toUTF8(dstPath) + " during copy with result 0x%08lX. Skipping...",
+            "Échec d'ouverture du fichier de destination " + StringUtils::UTF16toUTF8(dstPath) + " lors de la copie avec pour résultat 0x%08lX. Annulation...",
             output.result());
     }
 
@@ -174,7 +174,7 @@ std::tuple<bool, Result, std::string> io::backup(size_t index, size_t cellIndex)
     Title title;
     getTitle(title, index);
 
-    Logger::getInstance().log(Logger::INFO, "Started backup of %s. Title id: 0x%08lX.", title.shortDescription().c_str(), title.lowId());
+    Logger::getInstance().log(Logger::INFO, "Lancement de la copie de %s. ID du jeu: 0x%08lX.", title.shortDescription().c_str(), title.lowId());
 
     if (title.cardType() == CARD_CTR) {
         FS_Archive archive;
@@ -210,34 +210,34 @@ std::tuple<bool, Result, std::string> io::backup(size_t index, size_t cellIndex)
                 res = FSUSER_DeleteDirectoryRecursively(Archive::sdmc(), fsMakePath(PATH_UTF16, dstPath.data()));
                 if (R_FAILED(res)) {
                     FSUSER_CloseArchive(archive);
-                    Logger::getInstance().log(Logger::ERROR, "Failed to delete the existing backup directory recursively with result 0x%08lX.", res);
-                    return std::make_tuple(false, res, "Failed to delete the existing backup\ndirectory recursively.");
+                    Logger::getInstance().log(Logger::ERROR, "Échec de la suppression récursive du répertoire de sauvegarde existant avec le résultat suivant 0x%08lX.", res);
+                    return std::make_tuple(false, res, "Échec de la suppression récursive du\nrépertoire de sauvegarde existant.");
                 }
             }
 
             res = io::createDirectory(Archive::sdmc(), dstPath);
             if (R_FAILED(res)) {
                 FSUSER_CloseArchive(archive);
-                Logger::getInstance().log(Logger::ERROR, "Failed to create destination directory.");
-                return std::make_tuple(false, res, "Failed to create destination directory.");
+                Logger::getInstance().log(Logger::ERROR, "Échec de la création du répertoire de destination.");
+                return std::make_tuple(false, res, "Échec de la création du répertoire de destination.");
             }
 
             std::u16string copyPath = dstPath + StringUtils::UTF8toUTF16("/");
 
             res = io::copyDirectory(archive, Archive::sdmc(), StringUtils::UTF8toUTF16("/"), copyPath);
             if (R_FAILED(res)) {
-                std::string message = mode == MODE_SAVE ? "Failed to backup save." : "Failed to backup extdata.";
+                std::string message = mode == MODE_SAVE ? "Échec de la copie." : "Échec de la copie de extdata.";
                 FSUSER_CloseArchive(archive);
                 FSUSER_DeleteDirectoryRecursively(Archive::sdmc(), fsMakePath(PATH_UTF16, dstPath.data()));
-                Logger::getInstance().log(Logger::ERROR, message + " Result 0x%08lX.", res);
+                Logger::getInstance().log(Logger::ERROR, message + " Résultat 0x%08lX.", res);
                 return std::make_tuple(false, res, message);
             }
 
             refreshDirectories(title.id());
         }
         else {
-            Logger::getInstance().log(Logger::ERROR, "Failed to open save archive with result 0x%08lX.", res);
-            return std::make_tuple(false, res, "Failed to open save archive.");
+            Logger::getInstance().log(Logger::ERROR, "Échec d'ouverture de la sauvegarde d'archive avec pour résultat 0x%08lX.", res);
+            return std::make_tuple(false, res, "Échec d'ouverture de la sauvegarde d'archive.");
         }
 
         FSUSER_CloseArchive(archive);

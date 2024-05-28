@@ -36,10 +36,10 @@ MainScreen::MainScreen(void) : hid(rowlen * collen, collen)
     staticBuf  = C2D_TextBufNew(261);
     dynamicBuf = C2D_TextBufNew(256);
 
-    buttonBackup    = std::make_unique<Clickable>(204, 102, 110, 35, COLOR_GREY_DARKER, COLOR_WHITE, "Backup \uE004", true);
-    buttonRestore   = std::make_unique<Clickable>(204, 139, 110, 35, COLOR_GREY_DARKER, COLOR_WHITE, "Restore \uE005", true);
-    buttonCheats    = std::make_unique<Clickable>(204, 176, 110, 36, COLOR_GREY_DARKER, COLOR_WHITE, "Cheats", true);
-    buttonPlayCoins = std::make_unique<Clickable>(204, 176, 110, 36, COLOR_GREY_DARKER, COLOR_WHITE, "\uE075 Coins", true);
+    buttonBackup    = std::make_unique<Clickable>(204, 102, 110, 35, COLOR_GREY_DARKER, COLOR_WHITE, "Copier \uE004", true);
+    buttonRestore   = std::make_unique<Clickable>(204, 139, 110, 35, COLOR_GREY_DARKER, COLOR_WHITE, "Restaurer \uE005", true);
+    buttonCheats    = std::make_unique<Clickable>(204, 176, 110, 36, COLOR_GREY_DARKER, COLOR_WHITE, "Triches", true);
+    buttonPlayCoins = std::make_unique<Clickable>(204, 176, 110, 36, COLOR_GREY_DARKER, COLOR_WHITE, "\uE075 Pièces", true);
     directoryList   = std::make_unique<Scrollable>(6, 102, 196, 110, 5);
     buttonBackup->canChangeColorWhenSelected(true);
     buttonRestore->canChangeColorWhenSelected(true);
@@ -48,23 +48,23 @@ MainScreen::MainScreen(void) : hid(rowlen * collen, collen)
 
     sprintf(ver, "v%d.%d.%d", VERSION_MAJOR, VERSION_MINOR, VERSION_MICRO);
 
-    C2D_TextParse(&ins1, staticBuf, "Hold SELECT to see commands. Press \uE002 for ");
+    C2D_TextParse(&ins1, staticBuf, "Maintenir SELECT pour voir les commandes. Presse \uE002 pour ");
     C2D_TextParse(&ins2, staticBuf, "extdata");
     C2D_TextParse(&ins3, staticBuf, ".");
-    C2D_TextParse(&ins4, staticBuf, "Press \uE073 or START to exit.");
+    C2D_TextParse(&ins4, staticBuf, "Presse \uE073 ou START pour quitter.");
     C2D_TextParse(&version, staticBuf, ver);
     C2D_TextParse(&checkpoint, staticBuf, "checkpoint");
     C2D_TextParse(&c2dId, staticBuf, "ID:");
-    C2D_TextParse(&c2dMediatype, staticBuf, "Mediatype:");
+    C2D_TextParse(&c2dMediatype, staticBuf, "Type de support:");
 
-    C2D_TextParse(&top_move, staticBuf, "\uE006 to move between titles");
-    C2D_TextParse(&top_a, staticBuf, "\uE000 to enter target");
-    C2D_TextParse(&top_y, staticBuf, "\uE003 to multiselect a title");
-    C2D_TextParse(&top_my, staticBuf, "\uE003 hold to multiselect all titles");
-    C2D_TextParse(&top_b, staticBuf, "\uE001 to exit target or deselect all titles");
-    C2D_TextParse(&top_hb, staticBuf, "\uE001 hold to refresh titles");
-    C2D_TextParse(&bot_ts, staticBuf, "\uE01D \uE006 to move\nbetween backups");
-    C2D_TextParse(&bot_x, staticBuf, "\uE002 to delete backups");
+    C2D_TextParse(&top_move, staticBuf, "\uE006 pour passer d'un titre à l'autre");
+    C2D_TextParse(&top_a, staticBuf, "\uE000 pour entrer dans la cible");
+    C2D_TextParse(&top_y, staticBuf, "\uE003 pour multisélectionner un titre");
+    C2D_TextParse(&top_my, staticBuf, "\uE003 maintenir pour multisélectionner tous les titres");
+    C2D_TextParse(&top_b, staticBuf, "\uE001 pour quitter la cible ou désélectionner tous les titres");
+    C2D_TextParse(&top_hb, staticBuf, "\uE001 maintenir pour rafraîchir les titres");
+    C2D_TextParse(&bot_ts, staticBuf, "\uE01D \uE006 pour passer\nd'une sauvegarde à l'autre");
+    C2D_TextParse(&bot_x, staticBuf, "\uE002 pour effacer les sauvegardes");
     C2D_TextParse(&coins, staticBuf, "\uE075");
 
     C2D_TextOptimize(&ins1);
@@ -302,7 +302,7 @@ void MainScreen::handleEvents(const InputState& input)
             // If the "New..." entry is selected...
             if (0 == directoryList->index()) {
                 currentOverlay = std::make_shared<YesNoOverlay>(
-                    *this, "Backup selected title?",
+                    *this, "Copier le titre sélectionné ?",
                     [this]() {
                         auto result = io::backup(hid.fullIndex(), 0);
                         if (std::get<0>(result)) {
@@ -316,7 +316,7 @@ void MainScreen::handleEvents(const InputState& input)
             }
             else {
                 currentOverlay = std::make_shared<YesNoOverlay>(
-                    *this, "Restore selected title?",
+                    *this, "Restaurer le titre sélectionné ?",
                     [this]() {
                         size_t cellIndex = directoryList->index();
                         auto result      = io::restore(hid.fullIndex(), cellIndex, nameFromCell(cellIndex));
@@ -353,7 +353,7 @@ void MainScreen::handleEvents(const InputState& input)
             // avoid actions if X is pressed on "New..."
             if (index > 0) {
                 currentOverlay = std::make_shared<YesNoOverlay>(
-                    *this, "Delete selected backup?",
+                    *this, "Supprimer la sauvegarde sélectionnée ?",
                     [this, isSaveMode, index]() {
                         Title title;
                         getTitle(title, hid.fullIndex());
@@ -431,7 +431,7 @@ void MainScreen::handleEvents(const InputState& input)
         }
         else if (g_bottomScrollEnabled) {
             currentOverlay = std::make_shared<YesNoOverlay>(
-                *this, "Backup selected save?",
+                *this, "Copier la sauvegarde sélectionné ?",
                 [this]() {
                     auto result = io::backup(hid.fullIndex(), directoryList->index());
                     if (std::get<0>(result)) {
@@ -453,7 +453,7 @@ void MainScreen::handleEvents(const InputState& input)
         }
         else if (g_bottomScrollEnabled && cellIndex > 0) {
             currentOverlay = std::make_shared<YesNoOverlay>(
-                *this, "Restore selected save?",
+                *this, "Restaurer la sauvegarde sélectionnée ?",
                 [this, cellIndex]() {
                     auto result = io::restore(hid.fullIndex(), cellIndex, nameFromCell(cellIndex));
                     if (std::get<0>(result)) {
@@ -472,7 +472,7 @@ void MainScreen::handleEvents(const InputState& input)
         getTitle(title, hid.fullIndex());
         if ((title.isActivityLog() && buttonPlayCoins->released()) || ((hidKeysDown() & KEY_TOUCH) && input.py < 20 && input.px > 294)) {
             if (!Archive::setPlayCoins()) {
-                currentOverlay = std::make_shared<ErrorOverlay>(*this, -1, "Failed to set play coins.");
+                currentOverlay = std::make_shared<ErrorOverlay>(*this, -1, "Échec de la mise en place des pièces de monnaie.");
             }
         }
         else {
@@ -487,7 +487,7 @@ void MainScreen::handleEvents(const InputState& input)
                         currentOverlay = std::make_shared<CheatManagerOverlay>(*this, key);
                     }
                     else {
-                        currentOverlay = std::make_shared<InfoOverlay>(*this, "No available cheat codes for this title.");
+                        currentOverlay = std::make_shared<InfoOverlay>(*this, "Aucun code de triche disponible pour ce titre.");
                     }
                 }
             }
